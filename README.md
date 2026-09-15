@@ -1,6 +1,6 @@
 # FPGA Signal Generator
 
-This was a VHDL and digital systems group project I worked on using a Basys 3 FPGA board. The main goal was to generate a sinusoidal signal at different frequencies and pass it through two versions of a digital FIR filter.
+This project uses VHDL and a Basys 3 FPGA board to generate a sinusoidal signal at different frequencies and pass it through two versions of a digital FIR filter.
 
 ## What the project does
 
