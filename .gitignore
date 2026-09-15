@@ -1,0 +1,25 @@
+# Vivado generated files
+.Xil/
+.cache/
+.gen/
+.hw/
+.ip_user_files/
+.runs/
+.sim/
+.srcs/
+*.jou
+*.log
+*.str
+*.wdb
+*.pb
+*.dcp
+*.bit
+*.bin
+*.ltx
+*.xpr
+
+# Editor and operating-system files
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
