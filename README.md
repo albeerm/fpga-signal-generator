@@ -1,68 +1,58 @@
 # FPGA Signal Generator
 
-A VHDL signal-generation and digital-filtering project implemented for the **Basys 3 FPGA board**. The design generates an 8-bit sinusoidal waveform from a 16-sample ROM and processes it through two implementations of a 10-tap FIR low-pass filter.
+This was a VHDL and digital systems group project I worked on using a Basys 3 FPGA board. The main goal was to generate a sinusoidal signal at different frequencies and pass it through two versions of a digital FIR filter.
 
-## Features
+## What the project does
 
-- 16-sample, 8-bit sinusoidal lookup table
-- Four switch-selectable output frequencies
-- Parallel FIR filter implementation
-- Pipelined FIR filter implementation
-- Simultaneous output comparison through two 8-bit Pmod interfaces
-- LED display of the raw signed waveform samples
-- VHDL testbench covering every frequency selection
+The system generates an 8-bit sinusoidal signal using 16 stored samples in a ROM. Two switches are used to select between four output frequencies: approximately 500 Hz, 950 Hz, 2 kHz, and 4 kHz.
 
-## Design overview
+The generated signal is sent through two versions of the same FIR low-pass filter. One uses a parallel architecture, while the other uses a pipelined architecture. This makes it possible to compare the outputs and see the delay introduced by the pipelined design.
 
-`genSen.vhd` generates the waveform using a ROM and a programmable sample counter. The two-bit `per` input selects the counter limit:
+## Main features
 
-| `per` | Counter limit | Approximate output frequency |
-|---|---:|---:|
-| `00` | 12,499 | 500 Hz |
-| `01` | 6,579 | 950 Hz |
-| `10` | 3,124 | 2 kHz |
-| `11` | 1,562 | 4 kHz |
+- 8-bit sinusoidal signal generation
+- 16-sample ROM lookup table
+- Four selectable output frequencies
+- Parallel FIR filter
+- Pipelined FIR filter
+- LED output for the generated signal
+- Two 8-bit Pmod outputs for comparing the filters
+- VHDL testbench for simulation
+- Basys 3 pin constraints
 
-The `top.vhd` module samples the generated signal at 10 kHz and sends it to both FIR implementations. Both filters use the symmetric coefficients:
+## How it works
+
+The signal generator reads through 16 stored sine-wave values. A counter controls how quickly the design moves to the next sample, and the selected counter limit determines the output frequency.
+
+The top module sends the generated samples to both FIR filters at a 10 kHz sampling rate. Both filters use the same ten coefficients:
 
 ```text
 0, 2, 9, 21, 31, 31, 21, 9, 2, 0
 ```
 
-The parallel implementation forms a direct accumulation chain. The pipelined implementation divides multiplication and addition across registered stages, trading additional latency and resources for a shorter critical path.
+The parallel filter adds the multiplied samples through one direct path. The pipelined filter separates the calculations into multiple registered stages. This adds some delay but reduces the amount of work that has to happen during one clock cycle.
 
-## Repository structure
+## Technologies used
+
+- VHDL
+- Basys 3 FPGA
+- Vivado
+- Digital signal processing
+- ROM-based signal generation
+- FIR filters
+- Pipelining
+- Testbenches and simulation
+
+## Source code
+
+The main VHDL files are located in:
 
 ```text
-.
-├── constraints/
-│   └── Basys-3-Master.xdc
-├── sim/
-│   └── tb_top.vhd
-└── src/
-    ├── filter.vhd
-    ├── filter_pipeline.vhd
-    ├── genSen.vhd
-    └── top.vhd
+src/
 ```
 
-## Hardware mapping
+The testbench is located in `sim/`, and the Basys 3 pin assignments are in `constraints/`.
 
-- `tClk`: Basys 3 100 MHz clock
-- `tReset`: switch SW0
-- `tper[1:0]`: switches SW2–SW1
-- `tled[7:0]`: LEDs LD7–LD0
-- `tdac[7:0]`: Pmod JB, parallel-filter output
-- `tdac_pipe[7:0]`: Pmod JC, pipelined-filter output
+## What I learned
 
-## Running the project in Vivado
-
-1. Create a new RTL project targeting the Basys 3 board.
-2. Add every VHDL file from `src/` as a design source.
-3. Set `top` as the synthesis top module.
-4. Add `sim/tb_top.vhd` as a simulation source.
-5. Set `tb_top` as the simulation top module.
-6. Add `constraints/Basys-3-Master.xdc` as a constraint file.
-7. Run behavioral simulation, synthesis, implementation, and bitstream generation.
-
-The testbench uses a 10 ns clock period and cycles through all four `per` selections.
+This project helped me understand how signals can be generated digitally using a ROM and counters. I got more experience writing VHDL, connecting multiple modules, creating testbenches, and using Vivado for simulation and synthesis. I also learned the difference between parallel and pipelined hardware designs, including how pipelining can improve timing while using more registers and adding latency.
